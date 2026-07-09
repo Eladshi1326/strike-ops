@@ -223,7 +223,8 @@
     'https://cdn.babylonjs.com/babylon.js'
   ];
   const loaderUrls = [
-    'https://cdnjs.cloudflare.com/ajax/libs/babylonjs-loaders/8.15.1/babylonjs.loaders.min.js',
+    'https://cdn.jsdelivr.net/npm/babylonjs-loaders@8.15.1/babylonjs.loaders.min.js',
+    'https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js',
     'https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js'
   ];
   let i = 0, j = 0;
@@ -232,7 +233,8 @@
     if (j >= loaderUrls.length) { startNow(); return; } // no glTF loader -> game still runs with the old soldiers
     const s2 = document.createElement('script');
     s2.src = loaderUrls[j++];
-    s2.onload = startNow;
+    // a script can load yet register the WRONG (glTF 1.0) plugin -> verify, otherwise try the next url
+    s2.onload = () => { if (window.BABYLON && BABYLON.GLTFFileLoader) startNow(); else loadLoaders(); };
     s2.onerror = loadLoaders;
     document.head.appendChild(s2);
   }
@@ -447,7 +449,7 @@ scene.fogColor = new BABYLON.Color3(0.72, 0.78, 0.86);
 // ===== REAL 3D CHARACTER MODEL (glTF) - with automatic fallback to the old soldiers =====
 let SWAT = null;
 try {
-  if (BABYLON.SceneLoader && BABYLON.SceneLoader.LoadAssetContainerAsync) {
+  if (BABYLON.GLTFFileLoader && BABYLON.SceneLoader && BABYLON.SceneLoader.LoadAssetContainerAsync) {
     const tries = [['./', 'Swat.glb'], ['assets/models/characters/', 'Swat.glb'], ['assets/models/characters/', 'Swat.gltf']];
     for (const t of tries) {
       try { SWAT = await BABYLON.SceneLoader.LoadAssetContainerAsync(t[0], t[1], scene); break; } catch (e2) { SWAT = null; }
@@ -467,7 +469,7 @@ const KEN_H = { 'building-skyscraper-a': 3.88, 'building-skyscraper-b': 5.48, 'b
   'building-a': 2.29, 'building-c': 2.0, 'building-f': 2.69, 'building-type-a': 2.0, 'building-type-c': 2.03, 'building-type-e': 2.14, 'building-type-g': 2.0 };
 let KEN_READY = false;
 try {
-  if (BABYLON.SceneLoader && BABYLON.SceneLoader.LoadAssetContainerAsync) {
+  if (BABYLON.GLTFFileLoader && BABYLON.SceneLoader && BABYLON.SceneLoader.LoadAssetContainerAsync) {
     const allK = KEN_TREES.concat(KEN_BUSHES, KEN_ROCKS, KEN_TOWERS, KEN_BLOCKS);
     await Promise.all(allK.map(n2 =>
       BABYLON.SceneLoader.LoadAssetContainerAsync('models/', n2 + '.glb', scene)
