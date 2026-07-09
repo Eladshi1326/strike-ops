@@ -1921,8 +1921,9 @@ let eliteOrbRef = null;
 // FILL THE MAP: dense merged scenery trees (cheap) + collidable cover props
 (function fillOutskirts() {
   const scLeaf = [], scLeaf2 = [], scTrunk = [];
-  for (let gx = -ARENA + 12; gx <= ARENA - 12; gx += 15) {
-    for (let gz = -ARENA + 12; gz <= ARENA - 12; gz += 15) {
+  const gstep = KEN_READY ? 24 : 15;
+  for (let gx = -ARENA + 12; gx <= ARENA - 12; gx += gstep) {
+    for (let gz = -ARENA + 12; gz <= ARENA - 12; gz += gstep) {
       if (Math.hypot(gx, gz) < 100) continue; // village area already full
       const px = gx + rand(-6, 6), pz = gz + rand(-6, 6);
       if (Math.abs(px) > ARENA - 4 || Math.abs(pz) > ARENA - 4) continue;
@@ -3645,7 +3646,8 @@ function makeEnemy(type, roofSpot) {
   return e;
 }
 function spawnWave(n) {
-  let count = Math.min(Math.round((6 + n * 4) * (mode === 'hardcore' ? 1.5 : 1)), mode === 'hardcore' ? 78 : 58);
+  const capN = SWAT ? (mode === 'hardcore' ? 30 : 24) : (mode === 'hardcore' ? 78 : 58); // real 3D soldiers cost much more
+  let count = Math.min(Math.round((6 + n * 4) * (mode === 'hardcore' ? 1.5 : 1)), capN);
   attackTokens = Math.min(5, 2 + Math.floor(n / 3));
   for (let i = 0; i < count; i++) {
     const roll = Math.random();
